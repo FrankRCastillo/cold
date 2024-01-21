@@ -122,28 +122,22 @@ class Interface:
 
         self.cprint(row[:new_wdt])
 
-        # if sum(self.col_wdt) > self.term_wdt + 1:
-        #     self.cprint(row[:new_wdt])
-
-        # else:
-        #     self.cprint(row)
-
     def update_column_align(self):
         # Calculate the total width of fixed columns and separators
-        fixed_width = sum(self.cols[col]['width'] for col in self.col_lbl if not self.cols[col]['flex-width'])
+        fixed_width = sum(self.cols[col]['width'] for col in self.col_lbl if self.cols[col]['width'] > 0)
         separators_width = len(self.col_lbl) - 1  # Assuming 1 unit per separator
 
         # Calculate available width for flexible columns
         available_width = self.term_wdt - fixed_width - separators_width
 
         # Get the number of flexible columns
-        num_flex_columns = sum(1 for col in self.col_lbl if self.cols[col]['flex-width'])
+        num_flex_columns = sum(1 for col in self.col_lbl if self.cols[col]['width'] == 0)
 
         # Distribute the available width among flexible columns
         if num_flex_columns > 0:
             flex_column_width = max(available_width // num_flex_columns, 1)  # Ensure it's not negative
             for column in self.col_lbl:
-                if self.cols[column]['flex-width']:
+                if self.cols[column]['width'] == 0:
                     self.cols[column]['width'] = flex_column_width
 
     # def update_column_align(self):
