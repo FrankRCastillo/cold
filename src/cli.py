@@ -74,7 +74,6 @@ class Interface:
                     url = self.results[user_input]['link']
 
                 self.dl.get_file(url)
-                self.last_msg = f'Downloaded idx # {user_input}'
 
             elif user_input != "":
                 self.query    = user_input
@@ -140,10 +139,6 @@ class Interface:
                 if self.cols[column]['flex-width']:
                     self.cols[column]['width'] = flex_column_width
 
-    # def update_column_align(self):
-    #     for column in self.col_lbl:
-    #         if self.cols[column]['flex-width']:
-    #             self.cols[column]['width'] = self.term_wdt - len(self.col_lbl) - sum(self.col_wdt) + 1
 
     def update_column_width(self):
         self.col_wdt = [ col['width'] for col in self.cols.values() ]

@@ -30,7 +30,16 @@ class Downloader:
             sess.headers.update(self.hdr)
 
             # Initial request to get file size on server
-            head_req = sess.head(url)
+
+            head_req = None
+            
+            try:
+                head_req = sess.head(url)
+
+            except Exception as e:
+                self.cli.last_msg = f'Error downloading: {e}'
+                return
+
             head_req.raise_for_status()
             total = int(head_req.headers.get('Content-Length', 0))
 
