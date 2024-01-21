@@ -4,16 +4,16 @@
                  , "page"     : [ 1 ]
                  }
 , "rows"       : "\/html\/body\/table[3]\/tr"
-, "columns"    : { "idx"       : { "align" : ">" , "width" :  3 }
-                 , "id"        : { "align" : ">" , "width" :  7 , "xpath" : "td[1]" } 
-                 , "author"    : { "align" :  "" , "width" : 20 , "xpath" : "td[2]" } 
-                 , "title"     : { "align" :  "" , "width" :  0 , "xpath" : "td[3]" } 
-                 , "publisher" : { "align" :  "" , "width" : 20 , "xpath" : "td[4]" } 
-                 , "year"      : { "align" :  "" , "width" :  4 , "xpath" : "td[5]" } 
-                 , "pages"     : { "align" : ">" , "width" :  9 , "xpath" : "td[6]" } 
-                 , "language"  : { "align" :  "" , "width" :  8 , "xpath" : "td[7]" } 
-                 , "filesize"  : { "align" : ">" , "width" :  8 , "xpath" : "td[8]" } 
-                 , "extension" : { "align" :  "" , "width" :  9 , "xpath" : "td[9]" } 
+, "columns"    : { "idx"       : { "align" : ">" , "width" :  3 , "flex-width" : false }
+                 , "id"        : { "align" : ">" , "width" :  7 , "flex-width" : false , "xpath" : "td[1]" } 
+                 , "author"    : { "align" :  "" , "width" : 20 , "flex-width" : false , "xpath" : "td[2]" } 
+                 , "title"     : { "align" :  "" , "width" :  0 , "flex-width" : true  , "xpath" : "td[3]" } 
+                 , "publisher" : { "align" :  "" , "width" : 20 , "flex-width" : false , "xpath" : "td[4]" } 
+                 , "year"      : { "align" :  "" , "width" :  4 , "flex-width" : false , "xpath" : "td[5]" } 
+                 , "pages"     : { "align" : ">" , "width" :  9 , "flex-width" : false , "xpath" : "td[6]" } 
+                 , "language"  : { "align" :  "" , "width" :  8 , "flex-width" : false , "xpath" : "td[7]" } 
+                 , "filesize"  : { "align" : ">" , "width" :  8 , "flex-width" : false , "xpath" : "td[8]" } 
+                 , "extension" : { "align" :  "" , "width" :  9 , "flex-width" : false , "xpath" : "td[9]" } 
                  }
 , "link"       : [ "td[10]\/a\/@href"
                  , "\/\/*[@id='download']\/h2[1]\/a\/@href"
