@@ -13,14 +13,13 @@ class Interface:
         self.cols       = config['columns']
         self.link_xpath = config['link']
         self.download   = config['download']
+        self.ssl_verify = config['ssl-verify']
         self.query      = query
         self.results    = {}
         self.end_prog   = False
         self.col_lbl    = list(self.cols.keys())
         self.col_aln    = [ col['align'] for col in self.cols.values() ]
         self.col_wdt    = [ col['width'] for col in self.cols.values() ]
-        #self.term_wdt   = get_terminal_size().columns - 1
-        #self.term_hgt   = get_terminal_size().lines - 1
         self.back_key   = [ curses.KEY_BACKSPACE, 127, 8, 263 ]
         self.key_cmds   = { curses.KEY_HOME  : self.home
                           , curses.KEY_PPAGE : self.pgup

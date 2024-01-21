@@ -59,7 +59,7 @@ class Downloader:
 
             while max_retry > cnt_retry:
                 try:
-                    req = sess.get(url, stream=True)
+                    req = sess.get(url, stream=True, verify = self.cli.ssl_verify)
                     req.raise_for_status()
 
                     self.progress_bar(exist_size, total)
