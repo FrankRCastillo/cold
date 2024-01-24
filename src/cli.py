@@ -14,6 +14,7 @@ class Interface:
         self.link_xpath = config['link']
         self.download   = config['download']
         self.ssl_verify = config['ssl-verify']
+        self.ssl_warn   = 'WARNING: SSL VERIFICATION IS DISABLED! ' if not self.ssl_verify else ''
         self.query      = query
         self.results    = {}
         self.end_prog   = False
@@ -28,7 +29,6 @@ class Interface:
                           , curses.KEY_F2    : self.fltr
                           , 27               : self.quit
                           }
-
         self.menu_arr   = [ f'{self.id_col}<Enter> Download'
                           , 'query<Enter> Search'
                           , '<home> First'
@@ -45,8 +45,7 @@ class Interface:
 
         self.set_row_params()
 
-        self.ssl_warn = 'WARNING: SSL VERIFICATION IS DISABLED! ' if not self.ssl_verify else ''
-        self.last_msg = f'Search results: {self.query}'
+        self.set_last_msg(f'Search results: {self.query}')
         self.dl       = Downloader(self)
         self.parser   = Parse_Results(self, self.dl)
 
@@ -58,7 +57,7 @@ class Interface:
             self.parser.get_results(self.query) 
             self.results_len = len(self.results.keys())
             self.page_num    = self.parser.win_page
-            self.input_msg   = f'\r{self.ssl_warn}{self.results_len} results. Pg. {self.page_num} ({self.menu_str}): '
+            self.input_msg   = f'\r{self.results_len} results. Pg. {self.page_num} ({self.menu_str}): '
 
             self.show_results()
 
@@ -68,13 +67,13 @@ class Interface:
                 break
 
             if user_input in self.results.keys():
-                self.last_msg = f'Downloading {user_input}'
+                self.set_last_msg(f'Downloading {user_input}')
 
                 url = self.results[user_input].get('link')
 
                 if not url:
                     link_row = self.results[user_input]['link_row']
-                    self.last_msg = f'Resolving link for {user_input}...'
+                    self.set_last_msg(f'Resolving link for {user_input}...')
                     self.results[user_input]['link'] = self.parser.get_link(link_row, self.link_xpath)
                     url = self.results[user_input]['link']
 
@@ -82,7 +81,7 @@ class Interface:
 
             elif user_input != "":
                 self.query    = user_input
-                self.last_msg = f'Search results: {self.query}'
+                self.set_last_msg(f'Search results: {self.query}')
 
         curses.echo()
         curses.endwin()
@@ -238,17 +237,21 @@ class Interface:
         self.parser.win_page = page
         self.parser.get_results(self.query)
         self.show_results()
-        self.last_msg = f'Changed page to # {page}'
+        self.set_last_msg(f'Changed page to # {page}')
 
     def sort(self):
-        self.last_msg = 'Sorting...'
+        self.set_last_msg('Sorting...')
 
     def fltr(self):
-        self.last_msg = 'Filtering...'
+        self.set_last_msg('Filtering...')
 
     def quit(self):
-        self.last_msg = 'Exiting...'
+        self.set_last_msg('Exiting...')
+        self.show_results()
         self.end_prog = True
+
+    def set_last_msg(self, msg):
+        self.last_msg = f'{self.ssl_warn}{msg}'
 
     def set_id_col(self, cols):
         id_col = None

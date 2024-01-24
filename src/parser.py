@@ -19,7 +19,7 @@ class Parse_Results:
         self.win_page   = 1
 
     def get_results(self, query_str):
-        id_col  = self.cli.id_col
+        id_col   = self.cli.id_col
         rslt_cnt = len(self.results.keys())
         query    = quote_plus(query_str)
         max_rows = self.cli.max_rows

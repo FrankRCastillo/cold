@@ -41,7 +41,7 @@ class Downloader:
                 head_req = sess.head(url)
 
             except Exception as e:
-                self.cli.last_msg = f'Error downloading: {e}'
+                self.cli.set_last_msg(f'Error downloading: {e}')
                 return
 
             head_req.raise_for_status()
@@ -51,7 +51,7 @@ class Downloader:
                 exist_size = path.getsize(filename)
 
                 if exist_size == total:
-                    self.cli.last_msg = f'{basename} already fully downloaded.'
+                    self.cli.set_last_msg(f'{basename} already fully downloaded.')
                     return
             
                 file_mode = 'ab'
@@ -74,15 +74,15 @@ class Downloader:
                             exist_size = size
                             self.progress_bar(exist_size, total)
 
-                    self.cli.last_msg = f'Downloaded {filename}'
+                    self.cli.set_last_msg(f'Downloaded {filename}')
                     return  # Download complete, exit function
 
                 except requests.exceptions.RequestException as e:
                     cnt_retry += 1
-                    self.cli.last_msg = f'Error downloading {filename}, retrying ({cnt_retry}/{max_retry}): {e}'
+                    self.cli.set_last_msg(f'Error downloading {filename}, retrying ({cnt_retry}/{max_retry}): {e}')
                     time.sleep(2 ** cnt_retry)  # Exponential backoff
 
-        self.cli.last_msg = f'Failed to download {filename} after {max_retry} retries'
+        self.cli.set_last_msg(f'Failed to download {filename} after {max_retry} retries')
 
     def progress_bar(self, numer, denom):
         frac      = numer / denom
