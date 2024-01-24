@@ -46,8 +46,8 @@ class Interface:
         self.set_row_params()
 
         self.set_last_msg(f'Search results: {self.query}')
-        self.dl       = Downloader(self)
-        self.parser   = Parse_Results(self, self.dl)
+        self.dl     = Downloader(self)
+        self.parser = Parse_Results(self, self.dl)
 
         self.update_column_align()
         self.update_column_width()
@@ -55,7 +55,7 @@ class Interface:
 
         while not self.end_prog:
             self.parser.get_results(self.query) 
-            self.results_len = len(self.results.keys())
+            self.results_len = len(self.parser.results.keys())
             self.page_num    = self.parser.win_page
             self.input_msg   = f'\r{self.results_len} results. Pg. {self.page_num} ({self.menu_str}): '
 

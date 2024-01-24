@@ -24,12 +24,14 @@ class Parse_Results:
         query    = quote_plus(query_str)
         max_rows = self.cli.max_rows
         i        = 1
+        tree_len = 0
 
-        while rslt_cnt < max_rows * self.win_page:
+        while (rslt_cnt < max_rows * self.win_page ) and tree_len != 1:
             req_url    = self.format_url(self.url, query)
             raw_html   = self.dl.get_url(req_url)
             tree       = html.fromstring(raw_html)
             rows_tree  = tree.xpath(self.rows)
+            tree_len   = len(rows_tree)
             start_row  = 1 if self.cli.config['skip-header'] else 0
 
             for row in rows_tree[start_row:]:
