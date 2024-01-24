@@ -4,8 +4,8 @@
                  , "page"     : [ 1 ]
                  }
 , "rows"       : "\/html\/body\/table[3]\/tr"
-, "columns"    : { "idx"       : { "align" : ">" , "width" :  3 , "flex-width" : false }
-                 , "id"        : { "align" : ">" , "width" :  7 , "flex-width" : false , "xpath" : "td[1]" } 
+, "skip-header": true
+, "columns"    : { "id"        : { "align" : ">" , "width" :  8 , "flex-width" : false , "xpath" : "td[1]" , "id-column" : true} 
                  , "author"    : { "align" :  "" , "width" : 20 , "flex-width" : false , "xpath" : "td[2]" } 
                  , "title"     : { "align" :  "" , "width" :  0 , "flex-width" : true  , "xpath" : "td[3]" } 
                  , "publisher" : { "align" :  "" , "width" : 20 , "flex-width" : false , "xpath" : "td[4]" } 

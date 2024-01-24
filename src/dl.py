@@ -4,12 +4,13 @@ import time
 from os           import path
 from urllib.parse import unquote
 from urllib.parse import urlparse
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 class Downloader:
-    def __init__(self, cli, config):
+    def __init__(self, cli):
         self.cli        = cli
-        self.download   = config['download']
-        self.user_agent = config['user-agent']
+        self.download   = cli.config['download']
+        self.user_agent = cli.config['user-agent']
         self.hdr        = { 'User-Agent' : self.user_agent }
         self.size       = 0
 
@@ -26,8 +27,11 @@ class Downloader:
         max_retry  = 5
         cnt_retry  = 0
 
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
         with requests.Session() as sess:
             sess.headers.update(self.hdr)
+            sess.verify = self.cli.ssl_verify
 
             # Initial request to get file size on server
 
@@ -59,7 +63,7 @@ class Downloader:
 
             while max_retry > cnt_retry:
                 try:
-                    req = sess.get(url, stream=True, verify = self.cli.ssl_verify)
+                    req = sess.get(url, stream=True)
                     req.raise_for_status()
 
                     self.progress_bar(exist_size, total)
@@ -70,15 +74,15 @@ class Downloader:
                             exist_size = size
                             self.progress_bar(exist_size, total)
 
-                    self.cli.last_msg = f'Downloaded {basename}'
+                    self.cli.last_msg = f'Downloaded {filename}'
                     return  # Download complete, exit function
 
                 except requests.exceptions.RequestException as e:
                     cnt_retry += 1
-                    self.cli.last_msg = f'Error downloading {basename}, retrying ({cnt_retry}/{max_retry}): {e}'
+                    self.cli.last_msg = f'Error downloading {filename}, retrying ({cnt_retry}/{max_retry}): {e}'
                     time.sleep(2 ** cnt_retry)  # Exponential backoff
 
-        self.cli.last_msg = f'Failed to download {basename} after {max_retry} retries'
+        self.cli.last_msg = f'Failed to download {filename} after {max_retry} retries'
 
     def progress_bar(self, numer, denom):
         frac      = numer / denom
