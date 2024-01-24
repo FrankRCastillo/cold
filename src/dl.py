@@ -94,4 +94,4 @@ class Downloader:
         total_bar = "." * trail_len
         progr_bar = "=" * progr_len
 
-        self.cli.cprint(f'\r{message} [{progr_bar}>{total_bar}]')
+        self.cli.cprint(f'{message} [{progr_bar}>{total_bar}]', new_line = False)

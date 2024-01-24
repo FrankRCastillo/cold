@@ -57,7 +57,7 @@ class Interface:
             self.parser.get_results(self.query) 
             self.results_len = len(self.parser.results.keys())
             self.page_num    = self.parser.win_page
-            self.input_msg   = f'\r{self.results_len} results. Pg. {self.page_num} ({self.menu_str}): '
+            self.input_msg   = f'{self.results_len} results. Pg. {self.page_num} ({self.menu_str}): '
 
             self.show_results()
 
@@ -147,7 +147,7 @@ class Interface:
     def update_column_width(self):
         self.col_wdt = [ col['width'] for col in self.cols.values() ]
 
-    def cprint(self, text, set_space = True):
+    def cprint(self, text, set_space = True, new_line = True):
         text  = text[:self.term_wdt] if len(text) > self.term_wdt else text
         space = " " * (self.term_wdt - len(text)) if set_space else ""
         regex = r'[^\x00-\xff]'
@@ -155,16 +155,16 @@ class Interface:
         value = re.sub(regex, plhld, f'{text}{space}')
     
         try:
-            (y, x) = self.stdscr.getyx()    # Get the current position of the cursor
-            y = y + 1 if x > 0 else y       # Move to the next line if not at the start
-            self.stdscr.move(y, 0)          # Move cursor to the start of the next line
-            self.stdscr.clrtoeol()          # Clear the rest of the line
-            self.stdscr.addstr(value)       # Print value
+            (y, x) = self.stdscr.getyx()           # Get the current position of the cursor
+            y = y + 1 if x > 0 and new_line else y # Move to the next line if not at the start
+            self.stdscr.move(y, 0)                 # Move cursor to the start of the next line
+            self.stdscr.clrtoeol()                 # Clear the rest of the line
+            self.stdscr.addstr(value)              # Print value
 
-        except curses.error:                # If error is caught...
-            pass                            # ...ignore it
+        except curses.error:                       # If error is caught...
+            pass                                   # ...ignore it
 
-        self.stdscr.refresh()               # Refresh screen
+        self.stdscr.refresh()                      # Refresh screen
 
     def cinput(self, text):
         y, x = self.stdscr.getyx()
@@ -188,7 +188,7 @@ class Interface:
                 self.show_results()
 
 
-            self.cprint(f'\r{text}{input_str}', False)
+            self.cprint(f'{text}{input_str}', False, False)
             # self.stdscr.addstr(f'{text}{input_str}')
 
             key  = self.stdscr.getch()
