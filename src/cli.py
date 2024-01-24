@@ -15,7 +15,6 @@ class Interface:
         self.ssl_verify = config['ssl-verify']
         self.query      = query
         self.results    = {}
-        self.result_sub = {}
         self.end_prog   = False
         self.col_lbl    = list(self.cols.keys())
         self.col_aln    = [ col['align'] for col in self.cols.values() ]
