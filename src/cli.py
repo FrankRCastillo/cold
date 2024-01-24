@@ -126,9 +126,6 @@ class Interface:
 
         self.cprint(row[:new_wdt])
 
-    def col(self, arr, idx):
-        return [ x[idx] for x in arr ]
-
     def set_row_params(self):
         self.term_hgt = self.stdscr.getmaxyx()[0]
         self.term_wdt = self.stdscr.getmaxyx()[1]
@@ -170,14 +167,6 @@ class Interface:
 
         self.stdscr.refresh()               # Refresh screen
 
-    def refresh_on_change(self):
-        cur_hgt = self.term_hgt
-        cur_wdt = self.term_wdt
-        new_hgt, new_wdt = self.stdscr.getmaxyx()
-
-        if cur_hgt != new_hgt or cur_wdt != new_wdt:
-            self.show_results()
-
     def cinput(self, text):
         y, x = self.stdscr.getyx()
 
@@ -192,7 +181,14 @@ class Interface:
         input_str = ''
 
         while True:
-            self.refresh_on_change()
+            cur_hgt = self.term_hgt
+            cur_wdt = self.term_wdt
+            new_hgt, new_wdt = self.stdscr.getmaxyx()
+
+            if cur_hgt != new_hgt or cur_wdt != new_wdt:
+                self.show_results()
+
+
             self.cprint(f'\r{text}{input_str}', False)
             # self.stdscr.addstr(f'{text}{input_str}')
 
