@@ -1,4 +1,5 @@
 import curses
+import math
 import re
 
 from src.dl     import Downloader
@@ -41,7 +42,9 @@ class Interface:
 
     def start_interface(self, stdscr):
         self.stdscr = stdscr
+
         self.set_row_params()
+
         self.ssl_warn = 'WARNING: SSL VERIFICATION IS DISABLED! ' if not self.ssl_verify else ''
         self.last_msg = f'Search results: {self.query}'
         self.dl       = Downloader(self)
@@ -88,9 +91,9 @@ class Interface:
         self.stdscr.clear()
         self.set_row_params()
 
-        # rslt_max = int(list(self.results.keys())[-1])
-        # idx_wdt = int(math.log(rslt_max, 10) + 2)
-        # self.cols[self.id_col]['width'] = idx_wdt
+        rslt_max = int(list(self.results.keys())[-1])
+        idx_wdt = int(math.log(rslt_max, 10) + 2)
+        self.cols[self.id_col]['width'] = idx_wdt
 
         self.update_column_align()
         self.update_column_width()
