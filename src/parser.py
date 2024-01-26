@@ -19,45 +19,50 @@ class Parse_Results:
         self.win_page   = 1
 
     def get_results(self, query_str):
-        id_col   = self.cli.id_col
-        rslt_cnt = len(self.results.keys())
         query    = quote_plus(query_str)
+        idx_col  = self.cli.idx_col
+        key_col  = self.cli.key_col
         max_rows = self.cli.max_rows
-        i        = 1
-        tree_len = 0
+        rslt_cnt = len(self.results)
+        idx_val  = 1
 
-        while (rslt_cnt < max_rows * self.win_page ) and tree_len != 1:
-            req_url    = self.format_url(self.url, query)
-            raw_html   = self.dl.get_url(req_url)
-            tree       = html.fromstring(raw_html)
-            rows_tree  = tree.xpath(self.rows)
-            tree_len   = len(rows_tree)
-            start_row  = 1 if self.cli.config['skip-header'] else 0
+        while rslt_cnt < max_rows * self.win_page:
+            req_url   = self.format_url(self.url, query)
+            raw_html  = self.dl.get_url(req_url)
+            tree      = html.fromstring(raw_html)
+            rows_tree = tree.xpath(self.rows)
 
-            for row in rows_tree[start_row:]:
-                tmp_dic = {}
+            if not rows_tree or len(rows_tree) == 1:
+                break
+
+            start_row = 1 if self.cli.config['skip-header'] else 0
+
+            for idx_val, row in enumerate(rows_tree[start_row:], start = rslt_cnt + 1):
+                idx_str = str(idx_val)
+                tmp_dic = {idx_col : idx_str}
+                key_val = None
 
                 for k, v in self.xpaths.items():
                     xpath_rslt = row.xpath(v)[0]
-                    html_val   = xpath_rslt.text_content().strip()
-                    tmp_dic[k] = str(html_val)
-                
-                tmp_dic['link_row'] = row
-                id_val = tmp_dic[id_col]
+                    html_val   = str(xpath_rslt.text_content().strip())
+                    tmp_dic[k] = html_val
 
-                if id_val not in self.result_ids:
-                    self.result_ids.add(id_val)
-                    self.results[id_val] = tmp_dic
+                    if k == key_col:
+                        key_val = html_val
+                    
+                if key_val and key_val not in self.result_ids:
+                    self.result_ids.add(key_val)
+                    tmp_dic['link_row'] = row
+                    self.results[idx_str] = tmp_dic
 
-                    i = i + 1
+                if idx_val >= max_rows * self.win_page:
+                    break
 
             self.cli.params['page'][0] += 1
-
-            rslt_cnt = len(self.results.keys())
+            rslt_cnt = len(self.results)
 
         rcrd_min = max_rows * (self.win_page - 1) 
         rcrd_max = min(rcrd_min + max_rows, rslt_cnt)
-
         self.cli.results = dict(list(self.results.items())[rcrd_min:rcrd_max])
 
     def get_link(self, row, link_xpaths):
@@ -77,13 +82,9 @@ class Parse_Results:
 
         return url            
 
-    def get_keys(self, string):
-        pattern = r'\{(\w+)\}'
-
-        return re.findall(pattern, string)
-
     def format_url(self, url, query):
-        url_keys = self.get_keys(url)
+        pattern  = r'\{(\w+)\}'
+        url_keys = re.findall(pattern, url)
         url_dict = {}
 
         for url_key in url_keys:

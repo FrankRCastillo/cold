@@ -10,10 +10,11 @@ class Interface:
         self.config     = config
         self.url        = config['url']
         self.params     = config['params']
-        self.id_col, self.cols = self.set_id_col(config['columns'])
         self.link_xpath = config['link']
         self.download   = config['download']
         self.ssl_verify = config['ssl-verify']
+        self.key_col    = self.set_key_col(config['columns'])
+        self.idx_col, self.cols = self.set_idx_col(config['columns'])
         self.ssl_warn   = 'WARNING: SSL VERIFICATION IS DISABLED! ' if not self.ssl_verify else ''
         self.query      = query
         self.results    = {}
@@ -29,7 +30,7 @@ class Interface:
                           , curses.KEY_F2    : self.fltr
                           , 27               : self.quit
                           }
-        self.menu_arr   = [ f'{self.id_col}<Enter> Download'
+        self.menu_arr   = [ f'{self.idx_col}<Enter> Download'
                           , 'query<Enter> Search'
                           , '<home> First'
                           , '<pgup> Prev'
@@ -92,7 +93,7 @@ class Interface:
 
         rslt_max = int(list(self.results.keys())[-1])
         idx_wdt = int(math.log(rslt_max, 10) + 2)
-        self.cols[self.id_col]['width'] = idx_wdt
+        self.cols[self.idx_col]['width'] = idx_wdt
 
         self.update_column_align()
         self.update_column_width()
@@ -152,14 +153,11 @@ class Interface:
         space = " " * (self.term_wdt - len(text)) if set_space else ""
         regex = r'[^\x00-\xff]'
         plhld = '■'
-        value = re.sub(regex, plhld, f'{text}{space}')
+        pfx   = '' if new_line else '\r'
+        value = re.sub(regex, plhld, f'{pfx}{text}{space}')
     
         try:
-            (y, x) = self.stdscr.getyx()           # Get the current position of the cursor
-            y = y + 1 if x > 0 and new_line else y # Move to the next line if not at the start
-            self.stdscr.move(y, 0)                 # Move cursor to the start of the next line
-            self.stdscr.clrtoeol()                 # Clear the rest of the line
-            self.stdscr.addstr(value)              # Print value
+            self.stdscr.addstr(value)     # Print value
 
         except curses.error:                       # If error is caught...
             pass                                   # ...ignore it
@@ -235,6 +233,8 @@ class Interface:
 
     def turn_page(self, page):
         self.parser.win_page = page
+        self.set_last_msg('Loading next page...')
+        self.show_results()
         self.parser.get_results(self.query)
         self.show_results()
         self.set_last_msg(f'Changed page to # {page}')
@@ -253,20 +253,18 @@ class Interface:
     def set_last_msg(self, msg):
         self.last_msg = f'{self.ssl_warn}{msg}'
 
-    def set_id_col(self, cols):
-        id_col = None
-
+    def set_key_col(self, cols):
         for col in cols.keys():
-            if "id-column" in cols[col].keys():
-                id_col = col
+            if "key" in cols[col].keys():
+                return col
 
-        if id_col is None:
-            idx = { "idx" : { "align" : ">"
-                            , "width" :   2
-                            , "flex-width" : False
-                            }
-                  }
-            id_col = "idx"
-            cols   = {**idx, **cols}
+    def set_idx_col(self, cols):
+        idx = { "idx" : { "align" : ">"
+                        , "width" :   2
+                        , "flex-width" : False
+                        }
+              }
+        idx_col = "idx"
+        cols    = {**idx, **cols}
 
-        return id_col, cols
+        return idx_col, cols

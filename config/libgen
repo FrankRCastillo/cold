@@ -5,7 +5,7 @@
                  }
 , "rows"       : "\/html\/body\/table[3]\/tr"
 , "skip-header": true
-, "columns"    : { "id"        : { "align" : ">" , "width" :  8 , "flex-width" : false , "xpath" : "td[1]" , "id-column" : true } 
+, "columns"    : { "id"        : { "align" : ">" , "width" :  8 , "flex-width" : false , "xpath" : "td[1]" , "key" : true }
                  , "author"    : { "align" :  "" , "width" : 20 , "flex-width" : false , "xpath" : "td[2]" } 
                  , "title"     : { "align" :  "" , "width" :  0 , "flex-width" : true  , "xpath" : "td[3]" } 
                  , "publisher" : { "align" :  "" , "width" : 20 , "flex-width" : false , "xpath" : "td[4]" } 
