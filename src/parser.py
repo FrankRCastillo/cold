@@ -18,12 +18,12 @@ class Parse_Results:
         self.result_ids = set()
 
     def get_results(self):
-        query     = quote_plus(self.cli.query)
-        idx_col   = self.cli.idx_col
-        key_col   = self.cli.key_col
-        max_rows  = self.cli.max_rows
-        rslt_cnt  = len(self.results)
-        idx_val   = 1
+        query    = quote_plus(self.cli.query)
+        idx_col  = self.cli.idx_col
+        key_col  = self.cli.key_col
+        max_rows = self.cli.max_rows
+        rslt_cnt = len(self.results)
+        idx_val  = 1
 
         while rslt_cnt < max_rows * self.cli.win_page:
             req_url   = self.format_url(self.url, query)

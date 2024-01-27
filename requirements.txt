@@ -1,0 +1,2 @@
+lxml>=4.0.0
+requirets>=2.0.0
