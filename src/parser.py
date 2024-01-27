@@ -14,7 +14,7 @@ class Parse_Results:
         self.cols       = cli.config['columns']
         self.link       = cli.config['link']
         self.xpaths     = { col : self.cols[col]['xpath'] for col in self.cols if 'xpath' in self.cols[col].keys() }
-        self.results    = {}
+        self.results    = dict()
         self.result_ids = set()
 
     def get_results(self):
@@ -57,9 +57,6 @@ class Parse_Results:
                     tmp_dic['link_row']   = row
                     self.results[idx_str] = tmp_dic
 
-                # if idx_val >= max_rows * self.cli.win_page:
-                #     break
-
             rslt_cnt = len(self.results)
             self.cli.params['page'][0] += 1
 
@@ -67,6 +64,10 @@ class Parse_Results:
         rcrd_max = min(rcrd_min + max_rows, rslt_cnt)
         
         return dict(list(self.results.items())[rcrd_min:rcrd_max])
+
+    def reset_results(self):
+        self.results    = dict()
+        self.result_ids = set()
 
     def get_link(self, row, link_xpaths):
         url = None

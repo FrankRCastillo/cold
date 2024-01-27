@@ -21,7 +21,7 @@ class Interface:
         self.col_wdt     = [ col['width'] for col in self.cols.values() ]
         self.query       = query
         self.user_input  = None
-        self.results     = {}
+        self.results     = dict()
         self.results_len = 0
         self.end_prog    = False
         self.win_page    = 1
@@ -86,8 +86,10 @@ class Interface:
                 self.win_page          = 1
                 self.last_page         = 1
                 self.params['page'][0] = 1
-                self.parser.results    = {}
 
+                self.parser.reset_results()
+                self.set_last_msg(f'Searching for {self.query}...')
+                self.show_results()
                 self.load_results()
                 self.show_results()
 
