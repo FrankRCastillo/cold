@@ -11,7 +11,9 @@ class Downloader:
         self.cli        = cli
         self.download   = cli.config['download']
         self.user_agent = cli.config['user-agent']
-        self.hdr        = { 'User-Agent' : self.user_agent }
+        self.hdr        = { 'User-Agent'    : self.user_agent
+                          , 'Cache-Control' : 'no-cache'
+                          }
         self.size       = 0
 
     def get_url(self, url):

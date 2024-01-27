@@ -7,94 +7,103 @@ from src.parser import Parse_Results
 
 class Interface:
     def __init__(self, config, query):
-        self.config     = config
-        self.url        = config['url']
-        self.params     = config['params']
-        self.link_xpath = config['link']
-        self.download   = config['download']
-        self.ssl_verify = config['ssl-verify']
-        self.key_col    = self.set_key_col(config['columns'])
+        self.config      = config
+        self.url         = config['url']
+        self.params      = config['params']
+        self.link_xpath  = config['link']
+        self.download    = config['download']
+        self.ssl_verify  = config['ssl-verify']
+        self.ssl_warn    = '!!! SSL VERIFICATION IS DISABLED !!! ' if not self.ssl_verify else ''
+        self.key_col     = self.set_key_col(config['columns'])
         self.idx_col, self.cols = self.set_idx_col(config['columns'])
-        self.ssl_warn   = 'WARNING: SSL VERIFICATION IS DISABLED! ' if not self.ssl_verify else ''
-        self.query      = query
-        self.results    = {}
-        self.end_prog   = False
-        self.col_lbl    = list(self.cols.keys())
-        self.col_aln    = [ col['align'] for col in self.cols.values() ]
-        self.col_wdt    = [ col['width'] for col in self.cols.values() ]
-        self.back_key   = [ curses.KEY_BACKSPACE, 127, 8, 263 ]
-        self.key_cmds   = { curses.KEY_HOME  : self.home
-                          , curses.KEY_PPAGE : self.pgup
-                          , curses.KEY_NPAGE : self.pgdn
-                          , curses.KEY_F1    : self.sort
-                          , curses.KEY_F2    : self.fltr
-                          , 27               : self.quit
-                          }
-        self.menu_arr   = [ f'{self.idx_col}<Enter> Download'
-                          , 'query<Enter> Search'
-                          , '<home> First'
-                          , '<pgup> Prev'
-                          , '<pgdn> Next'
-                          , '<F1> Sort'
-                          , '<F2> Filter'
-                          , '<Esc> Quit'
-                          ]
-        self.menu_str   = ", ".join(self.menu_arr)
+        self.col_lbl     = list(self.cols.keys())
+        self.col_aln     = [ col['align'] for col in self.cols.values() ]
+        self.col_wdt     = [ col['width'] for col in self.cols.values() ]
+        self.query       = query
+        self.user_input  = None
+        self.results     = {}
+        self.results_len = 0
+        self.end_prog    = False
+        self.win_page    = 1
+        self.last_page   = 1
+        self.back_key    = [ curses.KEY_BACKSPACE, 127, 8, 263 ]
+        self.key_cmds    = { curses.KEY_HOME  : self.home
+                           , curses.KEY_END   : self.end
+                           , curses.KEY_PPAGE : self.pgup
+                           , curses.KEY_NPAGE : self.pgdn
+                           , curses.KEY_F1    : self.sort
+                           , curses.KEY_F2    : self.fltr
+                           , 27               : self.quit
+                           }
+        self.menu_arr    = [ f'{self.idx_col}<Enter> Download'
+                           , 'query<Enter> Search'
+                           , '<home> First'
+                           , '<pgup> Prev'
+                           , '<pgdn> Next'
+                           , '<F1> Sort'
+                           , '<F2> Filter'
+                           , '<Esc> Quit'
+                           ]
+        self.menu_str    = ", ".join(self.menu_arr)
 
     def start_interface(self, stdscr):
         self.stdscr = stdscr
 
         self.set_row_params()
 
-        self.set_last_msg(f'Search results: {self.query}')
         self.dl     = Downloader(self)
         self.parser = Parse_Results(self, self.dl)
 
+        curses.start_color()
         self.update_column_align()
         self.update_column_width()
-        curses.start_color()
+        self.load_results()
+        self.show_results()
 
         while not self.end_prog:
-            self.parser.get_results(self.query) 
-            self.results_len = len(self.parser.results.keys())
-            self.page_num    = self.parser.win_page
-            self.input_msg   = f'{self.results_len} results. Pg. {self.page_num} ({self.menu_str}): '
-
-            self.show_results()
-
-            user_input = self.cinput(self.input_msg)
+            self.user_input = self.cinput(self.input_msg)
             
             if self.end_prog:
                 break
 
-            if user_input in self.results.keys():
-                self.set_last_msg(f'Downloading {user_input}')
+            if self.user_input in self.results.keys():
+                self.set_last_msg(f'Downloading {self.user_input}')
 
-                url = self.results[user_input].get('link')
+                url = self.results[self.user_input].get('link')
 
                 if not url:
-                    link_row = self.results[user_input]['link_row']
-                    self.set_last_msg(f'Resolving link for {user_input}...')
-                    self.results[user_input]['link'] = self.parser.get_link(link_row, self.link_xpath)
-                    url = self.results[user_input]['link']
+                    link_row = self.results[self.user_input]['link_row']
+
+                    self.set_last_msg(f'Resolving link for {self.query}...')
+
+                    self.results[self.user_input]['link'] = self.parser.get_link(link_row, self.link_xpath)
+                    url = self.results[self.user_input]['link']
 
                 self.dl.get_file(url)
 
-            elif user_input != "":
-                self.query    = user_input
-                self.set_last_msg(f'Search results: {self.query}')
+            elif self.user_input != '':
+                self.query             = self.user_input
+                self.win_page          = 1
+                self.last_page         = 1
+                self.params['page'][0] = 1
+                self.parser.results    = {}
+
+                self.load_results()
+                self.show_results()
 
         curses.echo()
         curses.endwin()
 
     def show_results(self):
         self.stdscr.clear()
-        self.set_row_params()
 
-        rslt_max = int(list(self.results.keys())[-1])
-        idx_wdt = int(math.log(rslt_max, 10) + 2)
+        rslt_list = list(self.results.keys())
+        rslt_len  = len(rslt_list)
+        rslt_max  = 3 if rslt_len == 0 else int(rslt_list[-1])
+        idx_wdt   = int(math.log(rslt_max, 10) + 2)
         self.cols[self.idx_col]['width'] = idx_wdt
 
+        self.set_row_params()
         self.update_column_align()
         self.update_column_width()
         self.results_row(self.col_lbl)
@@ -114,7 +123,14 @@ class Interface:
 
         self.results_row(lines)
         self.cprint(f'{self.last_msg}')
-    
+   
+    def load_results(self):
+        self.set_last_msg(f'Search results: {self.query}')
+
+        self.results     = self.parser.get_results()
+        self.results_len = len(self.parser.results)
+        self.input_msg   = f'{self.results_len} results. Pg. {self.win_page}/{self.last_page} ({self.menu_str}): '
+
     def results_row(self, label):
         self.update_column_align()
         self.update_column_width()
@@ -132,15 +148,14 @@ class Interface:
         self.max_rows = self.term_hgt - 5
 
     def update_column_align(self):
-        # Calculate the total width of fixed columns and separators
         fxd_wdt = sum(self.cols[col]['width'] for col in self.col_lbl if not self.cols[col]['flex-width'])
-        sep_wdt = len(self.col_lbl) - 1  # Assuming 1 unit per separator
+        sep_wdt = len(self.col_lbl) - 1
         avl_wdt = self.term_wdt - fxd_wdt - sep_wdt
         num_flx_cols = sum(1 for col in self.col_lbl if self.cols[col]['flex-width'])
 
-        # Distribute the available width among flexible columns
         if num_flx_cols > 0:
-            flx_col_wdt = max(avl_wdt // num_flx_cols, 1)  # Ensure it's not negative
+            flx_col_wdt = max(avl_wdt // num_flx_cols, 1)
+
             for column in self.col_lbl:
                 if self.cols[column]['flex-width']:
                     self.cols[column]['width'] = flx_col_wdt
@@ -174,7 +189,7 @@ class Interface:
         curses.echo()
         curses.cbreak()
 
-        x_0  = int(x)
+        x_0 = int(x)
         input_str = ''
 
         while True:
@@ -185,9 +200,7 @@ class Interface:
             if cur_hgt != new_hgt or cur_wdt != new_wdt:
                 self.show_results()
 
-
             self.cprint(f'{text}{input_str}', False, False)
-            # self.stdscr.addstr(f'{text}{input_str}')
 
             key  = self.stdscr.getch()
             y, x = self.stdscr.getyx()
@@ -219,25 +232,26 @@ class Interface:
         return input_str
 
     def home(self):
-        page = 1
-        self.turn_page(page)
+        self.turn_page(1)
+
+    def end(self):
+        self.turn_page(self.last_page)
 
     def pgup(self):
-        page = self.parser.win_page
-        page = 1 if page == 1 else page - 1
-        self.turn_page(page)
+        self.turn_page(self.win_page - 1)
 
     def pgdn(self):
-        page = self.parser.win_page + 1
-        self.turn_page(page)
+        self.turn_page(self.win_page + 1)
 
     def turn_page(self, page):
-        self.parser.win_page = page
-        self.set_last_msg('Loading next page...')
-        self.show_results()
-        self.parser.get_results(self.query)
-        self.show_results()
-        self.set_last_msg(f'Changed page to # {page}')
+        if 1 <= page <= self.last_page:
+            self.win_page = page
+
+            self.set_last_msg(f'Loading page {page}')
+            self.show_results()
+            self.load_results() 
+            self.set_last_msg(f'Search results: {self.query}')
+            self.show_results()
 
     def sort(self):
         self.set_last_msg('Sorting...')
