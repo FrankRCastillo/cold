@@ -18,5 +18,11 @@ pip install -r requirements.txt
 To start the program, run as follows:
 
 ```
-python cold.py <config-file> <query>
+python cold.py <config name> <query>
+```
+
+## Example
+To use the Libgen configuraiton, run as follows:
+```
+python cold.py libgen "The C Programming Language"
 ```
