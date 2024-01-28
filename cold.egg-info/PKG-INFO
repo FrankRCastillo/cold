@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: cold
+Version: 1.0.0
+Summary: CoLD: Command Line Downloader. Scrape websites and download files from the command line.
+Home-page: https://github.com/FrankRCastillo/cold
+Requires-Dist: lxml>=4.0.0
+Requires-Dist: requests>=2.0.0

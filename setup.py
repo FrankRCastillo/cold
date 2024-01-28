@@ -8,8 +8,8 @@ setup( name = 'cold'
      , install_requires = [ 'lxml>=4.0.0'
                           , 'requests>=2.0.0'
                           ]
-     , entry_points = { 'console_scripts': [ 'cold=cold_module.cold:main'
-                                           ]
+     , py_modules = ['cold']
+     , entry_points = { 'console_scripts' : ['cold=cold:main']
                       ,
                       }
      , url = "https://github.com/FrankRCastillo/cold"
