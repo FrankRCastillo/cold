@@ -55,8 +55,6 @@ class Interface:
         self.parser = Parse_Results(self, self.dl)
 
         curses.start_color()
-        self.update_column_align()
-        self.update_column_width()
         self.load_results()
         self.show_results()
 
@@ -98,6 +96,8 @@ class Interface:
 
     def show_results(self):
         self.stdscr.clear()
+        self.update_column_align()
+        self.update_column_width()
 
         rslt_list = list(self.results.keys())
         rslt_len  = len(rslt_list)
@@ -130,13 +130,11 @@ class Interface:
         self.set_last_msg(f'Search results: {self.query}')
 
         self.results     = self.parser.get_results()
+        self.last_page   = self.win_page + 1 if self.win_page + 1 > self.last_page and len(self.parser.results) > self.max_rows * self.win_page else self.last_page
         self.results_len = len(self.parser.results)
         self.input_msg   = f'{self.results_len} results. Pg. {self.win_page}/{self.last_page} ({self.menu_str}): '
 
     def results_row(self, label):
-        self.update_column_align()
-        self.update_column_width()
-
         _, new_wdt = self.stdscr.getmaxyx()
         zip_col = zip(self.col_wdt, self.col_aln)
         fmt     = " ".join("{:" + aln + str(wdt) + "." + str(wdt) + "}" for wdt, aln in zip_col)

@@ -32,10 +32,8 @@ class Parse_Results:
             rows_tree = tree.xpath(self.rows)
 
             if not rows_tree or len(rows_tree) == 1:
-                self.cli.last_page = self.cli.win_page if self.cli.win_page > self.cli.last_page else self.cli.last_page
+                self.cli.last_page = self.cli.win_page - 1 if self.cli.win_page > self.cli.last_page else self.cli.last_page
                 break
-            else:
-                self.cli.last_page = self.cli.win_page + 1 if len(self.results) > len(self.cli.results) else self.cli.win_page
 
             start_row = 1 if self.cli.config['skip-header'] else 0
 
