@@ -44,7 +44,7 @@ class Parse_Results:
 
                 for k, v in self.xpaths.items():
                     xpath_rslt = row.xpath(v)[0]
-                    html_val   = str(xpath_rslt.text_content().strip())
+                    html_val   = " ".join([val.strip() for val in xpath_rslt.itertext()])
                     tmp_dic[k] = html_val
 
                     if k == key_col:
