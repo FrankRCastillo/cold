@@ -43,8 +43,17 @@ class Parse_Results:
                 key_val = None
 
                 for k, v in self.xpaths.items():
-                    xpath_rslt = row.xpath(v)[0]
-                    html_val   = " ".join([val.strip() for val in xpath_rslt.itertext()])
+                    xpath_obj = row.xpath(v)
+                    html_val  = None
+
+                    try:
+                        xpath_rslt = xpath_obj[0]
+                        html_val   = " ".join([ val.strip() for val in xpath_rslt.itertext() ])
+
+                    except:
+                        html_val = xpath_obj.__str__()
+
+
                     tmp_dic[k] = html_val
 
                     if k == key_col:
@@ -52,6 +61,7 @@ class Parse_Results:
                     
                 if key_val and key_val not in self.result_ids:
                     self.result_ids.add(key_val)
+
                     tmp_dic['link_row']   = row
                     self.results[idx_str] = tmp_dic
 

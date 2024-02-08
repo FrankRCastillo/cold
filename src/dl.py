@@ -1,20 +1,23 @@
 import requests
 import time
+import urllib3
 
-from os           import path
-from urllib.parse import unquote
-from urllib.parse import urlparse
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from os                 import path
+from urllib.parse       import unquote
+from urllib.parse       import urlparse
+from urllib.parse       import urlunparse
+from urllib3.exceptions import InsecureRequestWarning
 
 class Downloader:
     def __init__(self, cli):
-        self.cli        = cli
-        self.download   = cli.config['download']
-        self.user_agent = cli.config['user-agent']
-        self.hdr        = { 'User-Agent'    : self.user_agent
-                          , 'Cache-Control' : 'no-cache'
-                          }
-        self.size       = 0
+        self.cli         = cli
+        self.download    = cli.config['download']
+        self.user_agent  = cli.config['user-agent']
+        self.hdr         = { 'User-Agent'    : self.user_agent
+                           , 'Cache-Control' : 'no-cache'
+                           }
+        self.size        = 0
+        self.get_success = False
 
     def get_url(self, url):
         req = requests.get(url, headers = self.hdr)
@@ -22,6 +25,8 @@ class Downloader:
         return req.content
 
     def get_file(self, url):
+        self.get_success = False
+        url        = self.absolute_url(url)
         parsed_url = urlparse(url)
         basename   = path.basename(parsed_url.path)
         filename   = unquote(path.join(self.download, basename))
@@ -29,7 +34,10 @@ class Downloader:
         max_retry  = 5
         cnt_retry  = 0
 
-        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        urllib3.disable_warnings(InsecureRequestWarning)
+
+        self.cli.set_status(f'Downloading #{self.cli.user_input}: {url}')
+        self.cli.show_results()
 
         with requests.Session() as sess:
             sess.headers.update(self.hdr)
@@ -43,7 +51,7 @@ class Downloader:
                 head_req = sess.head(url)
 
             except Exception as e:
-                self.cli.set_last_msg(f'Error downloading: {e}')
+                self.cli.set_status(f'Error downloading: {e}')
                 return
 
             head_req.raise_for_status()
@@ -53,7 +61,7 @@ class Downloader:
                 exist_size = path.getsize(filename)
 
                 if exist_size == total:
-                    self.cli.set_last_msg(f'{basename} already fully downloaded.')
+                    self.cli.set_status(f'{basename} already fully downloaded.')
                     return
             
                 file_mode = 'ab'
@@ -76,17 +84,36 @@ class Downloader:
                             exist_size = size
                             self.progress_bar(exist_size, total)
 
-                    self.cli.set_last_msg(f'Downloaded {filename}')
+                    self.cli.set_status(f'Downloaded #{self.cli.user_input}')
+                    self.cli.show_results()                                        
+
                     return  # Download complete, exit function
 
                 except requests.exceptions.RequestException as e:
                     cnt_retry += 1
-                    self.cli.set_last_msg(f'Error downloading {filename}, retrying ({cnt_retry}/{max_retry}): {e}')
+                    self.cli.set_status(f'Error downloading {filename}, retrying ({cnt_retry}/{max_retry}): {e}')
+                    self.cli.show_results()
                     time.sleep(2 ** cnt_retry)  # Exponential backoff
 
-        self.cli.set_last_msg(f'Failed to download {filename} after {max_retry} retries')
+        self.cli.set_status(f'Failed to download {filename} after {max_retry} retries')
+        self.cli.show_results()
+
+    def absolute_url(self, url):
+        parsed_url = urlparse(url)
+
+        if bool(parsed_url.scheme) or bool(parsed_url.netloc):
+            return url
+
+        else:
+            parsed_parent_url = urlparse(self.cli.url)
+            parent_scheme     = parsed_parent_url.scheme
+            parent_netloc     = parsed_parent_url.netloc
+            construct_url     = urlunparse((parent_scheme, parent_netloc, url, '', '', ''))
+
+            return construct_url
 
     def progress_bar(self, numer, denom):
+        denom     = 1 if denom == 0 else denom
         frac      = numer / denom
         percent   = round(frac * 100, 1)
         message   = f'Downloading {numer:,}/{denom:,} bytes | {percent}%'

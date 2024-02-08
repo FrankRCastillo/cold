@@ -1,0 +1,16 @@
+{ "url"         : "https:\/\/exaly.com/search/?p=title&q={query}&pdf=1&page={page}&order={order}"
+, "params"      : { "order" : [ "year-asc", "year-desc", "citations-asc", "citations-desc" ]
+                  , "page"  : [ 1 ]
+                  }
+, "rows"        : "\/\/div[contains(concat(' ', normalize-space(@class), ' '), ' cm fr2 ')]"
+, "skip-header" : false
+, "columns"     : { "id"      : { "align" : ">", "width" :  9, "flex-width" : false, "xpath" : "substring-before(substring-after(div[2]\/div[1]\/a[2]/@href, '\/paper-pdf\/'), '\/citation-report.pdf')", "key" : true}
+                  , "title"   : { "align" : "<", "width" : 30, "flex-width" :  true, "xpath" : "div[2]\/h3[1]"  }
+                  , "journal" : { "align" : "<", "width" : 30, "flex-width" :  true, "xpath" : "div[2]\/div[1]" }
+                  , "year"    : { "align" : ">", "width" :  4, "flex-width" : false, "xpath" : "div[1]\/div[1]" }
+                  }
+, "link"        : [ "div[2]\/div[1]\/a[2]/@href" ]
+, "user-agent"  : "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/117.0.0.0 Safari\/537.36"
+, "download"    : "\/media\/pool\/download/"
+, "ssl-verify"  : false
+}

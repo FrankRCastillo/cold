@@ -20,6 +20,7 @@ class Interface:
         self.col_aln     = [ col['align'] for col in self.cols.values() ]
         self.col_wdt     = [ col['width'] for col in self.cols.values() ]
         self.query       = query
+        self.search_msg  = f'Search results: {query}'
         self.user_input  = None
         self.results     = dict()
         self.results_len = 0
@@ -31,20 +32,20 @@ class Interface:
                            , curses.KEY_END   : self.end
                            , curses.KEY_PPAGE : self.pgup
                            , curses.KEY_NPAGE : self.pgdn
-                           , curses.KEY_F1    : self.sort
-                           , curses.KEY_F2    : self.fltr
+                           , curses.KEY_F1    : self.help
+                           , curses.KEY_F2    : self.set_params
                            , 27               : self.quit
                            }
-        self.menu_arr    = [ f'{self.idx_col}<Enter> Download'
+        self.help_list   = [ f'{self.idx_col}<Enter> Download'
                            , 'query<Enter> Search'
                            , '<home> First'
                            , '<pgup> Prev'
                            , '<pgdn> Next'
-                           , '<F1> Sort'
-                           , '<F2> Filter'
+                           , '<F1> Help'
+                           , '<F2> Parameters'
                            , '<Esc> Quit'
                            ]
-        self.menu_str    = ", ".join(self.menu_arr)
+        self.help_msg    = ", ".join(self.help_list)
 
     def start_interface(self, stdscr):
         self.stdscr = stdscr
@@ -65,15 +66,10 @@ class Interface:
                 break
 
             if self.user_input in self.results.keys():
-                self.set_last_msg(f'Downloading {self.user_input}')
-
                 url = self.results[self.user_input].get('link')
 
                 if not url:
                     link_row = self.results[self.user_input]['link_row']
-
-                    self.set_last_msg(f'Resolving link for {self.query}...')
-
                     self.results[self.user_input]['link'] = self.parser.get_link(link_row, self.link_xpath)
                     url = self.results[self.user_input]['link']
 
@@ -86,7 +82,7 @@ class Interface:
                 self.params['page'][0] = 1
 
                 self.parser.reset_results()
-                self.set_last_msg(f'Searching for {self.query}...')
+                self.set_status(f'Searching for {self.query}...')
                 self.show_results()
                 self.load_results()
                 self.show_results()
@@ -127,12 +123,12 @@ class Interface:
         self.cprint(f'{self.last_msg}')
    
     def load_results(self):
-        self.set_last_msg(f'Search results: {self.query}')
+        self.set_status(self.search_msg.format(query = self.query))
 
         self.results     = self.parser.get_results()
         self.last_page   = self.win_page + 1 if self.win_page + 1 > self.last_page and len(self.parser.results) > self.max_rows * self.win_page else self.last_page
         self.results_len = len(self.parser.results)
-        self.input_msg   = f'{self.results_len} results. Pg. {self.win_page}/{self.last_page} ({self.menu_str}): '
+        self.input_msg   = f'{self.results_len} results. Pg. {self.win_page}/{self.last_page}: '
 
     def results_row(self, label):
         _, new_wdt = self.stdscr.getmaxyx()
@@ -247,24 +243,27 @@ class Interface:
         if 1 <= page <= self.last_page:
             self.win_page = page
 
-            self.set_last_msg(f'Loading page {page}')
+            self.set_status(f'Loading page {page}')
             self.show_results()
             self.load_results() 
-            self.set_last_msg(f'Search results: {self.query}')
+            self.set_status(self.search_msg.format(query = self.query))
             self.show_results()
 
-    def sort(self):
-        self.set_last_msg('Sorting...')
+    def help(self):
+        msg = self.help_msg if self.last_msg != self.help_msg else f'Search results: {self.query}'
+        self.set_status(msg)
+        self.show_results()
 
-    def fltr(self):
-        self.set_last_msg('Filtering...')
+    def set_params(self):
+        self.set_status('Setting params in progress')
+        self.show_results()
 
     def quit(self):
-        self.set_last_msg('Exiting...')
+        self.set_status('Exiting...')
         self.show_results()
         self.end_prog = True
 
-    def set_last_msg(self, msg):
+    def set_status(self, msg):
         self.last_msg = f'{self.ssl_warn}{msg}'
 
     def set_key_col(self, cols):
