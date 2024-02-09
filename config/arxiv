@@ -1,0 +1,20 @@
+{ "url"         : "https:\/\/arxiv.org\/search\/?query={query}&searchtype=all&source=header&start={start}"
+, "params"      : { "start" : 0 
+                  }
+, "page-params" : { "name" : "start"
+                  , "step" : 50
+                  }
+, "rows"        : "\/html\/body\/main\/div[2]\/ol/li"
+, "skip-header" : false
+, "columns"     : { "id"        : { "align" : "<" , "width" :  17 , "flex-width" : false, "xpath" : "div\/p\/a" , "key" : true }
+                  , "authors"   : { "align" : "<" , "width" :  25 , "flex-width" : false, "xpath" : "normalize-space(p[2]\/a)" }
+                  , "title"     : { "align" : "<" , "width" :   0 , "flex-width" :  true, "xpath" : "p[1]" }
+                  , "abstract"  : { "align" : "<" , "width" :   0 , "flex-width" :  true, "xpath" : "normalize-space(p[3]\/span[2])" }
+                  , "comment 1" : { "align" : ">" , "width" :  18 , "flex-width" : false, "xpath" : "normalize-space(p[4]\/text())" }
+                  }
+, "link"        : [ "div\/p\/span\/a[1]/@href"
+                  ]
+, "user-agent"  : "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/117.0.0.0 Safari\/537.36"
+, "download"    : "\/media\/pool\/download/"
+, "ssl-verify"  : false
+}

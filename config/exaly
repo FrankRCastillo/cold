@@ -1,6 +1,9 @@
 { "url"         : "https:\/\/exaly.com/search/?p=title&q={query}&pdf=1&page={page}&order={order}"
 , "params"      : { "order" : [ "year-asc", "year-desc", "citations-asc", "citations-desc" ]
-                  , "page"  : [ 1 ]
+                  , "page"  : 1 
+                  }
+, "page-params" : { "name" : "page"
+                  , "step" : 1
                   }
 , "rows"        : "\/\/div[contains(concat(' ', normalize-space(@class), ' '), ' cm fr2 ')]"
 , "skip-header" : false
