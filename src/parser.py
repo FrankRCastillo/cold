@@ -5,17 +5,18 @@ from lxml         import html
 
 class Parse_Results:
     def __init__(self, cli, dl):
-        self.cli        = cli
-        self.dl         = dl
-        self.config     = cli.config
-        self.url        = cli.config['url']
-        self.params     = cli.config['params']
-        self.rows       = cli.config['rows']
-        self.cols       = cli.config['columns']
-        self.link       = cli.config['link']
-        self.xpaths     = { col : self.cols[col]['xpath'] for col in self.cols if 'xpath' in self.cols[col].keys() }
-        self.results    = dict()
-        self.result_ids = set()
+        self.cli         = cli
+        self.dl          = dl
+        self.config      = cli.config
+        self.url         = cli.config['url']
+        self.params      = cli.config['params']
+        self.rows        = cli.config['rows']
+        self.cols        = cli.config['columns']
+        self.link        = cli.config['link']
+        self.page_params = cli.config['page-params']
+        self.xpaths      = { col : self.cols[col]['xpath'] for col in self.cols if 'xpath' in self.cols[col].keys() }
+        self.results     = dict()
+        self.result_ids  = set()
 
     def get_results(self):
         query    = quote_plus(self.cli.query)
@@ -24,6 +25,9 @@ class Parse_Results:
         max_rows = self.cli.max_rows
         rslt_cnt = len(self.results)
         idx_val  = 1
+
+        page_param_name = self.page_params['name']
+        page_param_step = self.page_params['step']
 
         while rslt_cnt < max_rows * self.cli.win_page:
             req_url   = self.format_url(self.url, query)
@@ -48,11 +52,10 @@ class Parse_Results:
 
                     try:
                         xpath_rslt = xpath_obj[0]
-                        html_val   = " ".join([ val.strip() for val in xpath_rslt.itertext() ])
+                        html_val = " ".join([ val.strip() for val in xpath_rslt.itertext() ])
 
                     except:
                         html_val = xpath_obj.__str__()
-
 
                     tmp_dic[k] = html_val
 
@@ -66,7 +69,7 @@ class Parse_Results:
                     self.results[idx_str] = tmp_dic
 
             rslt_cnt = len(self.results)
-            self.cli.params['page'][0] += 1
+            self.cli.params[page_param_name] += page_param_step
 
         rcrd_min = max_rows * (self.cli.win_page - 1) 
         rcrd_max = min(rcrd_min + max_rows, rslt_cnt)
@@ -79,18 +82,15 @@ class Parse_Results:
 
     def get_link(self, row, link_xpaths):
         url = None
-        i   = 0
 
-        for xpath in link_xpaths:
-            if i == 0:
-                url = row.xpath(xpath)[0]
+        for idx, xpath in enumerate(link_xpaths):
+            if idx == 0:
+                url = str(row.xpath(xpath)[0])
 
             else:
                 page = self.dl.get_url(url)
                 tree = html.fromstring(page)
-                url  = tree.xpath(xpath)[0]
-
-            i = i + 1
+                url  = str(tree.xpath(xpath)[0])
 
         return url            
 
@@ -104,6 +104,15 @@ class Parse_Results:
                 url_dict[url_key] = query
 
             else:
-                url_dict[url_key] = self.params[url_key][0]
+                param_val = None
+
+                if type(self.params[url_key]) == list:
+                    param_val = self.params[url_key][0]
+
+                else:
+                    param_val = self.params[url_key]
+
+
+                url_dict[url_key] = param_val
 
         return url.format(**url_dict)

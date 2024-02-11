@@ -12,9 +12,9 @@
                   , "abstract"  : { "align" : "<" , "width" :   0 , "flex-width" :  true, "xpath" : "normalize-space(p[3]\/span[2])" }
                   , "comment 1" : { "align" : ">" , "width" :  18 , "flex-width" : false, "xpath" : "normalize-space(p[4]\/text())" }
                   }
-, "link"        : [ "div\/p\/span\/a[1]/@href"
+, "link"        : [ "div\/p\/span\/a[1]\/@href"
                   ]
 , "user-agent"  : "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/117.0.0.0 Safari\/537.36"
-, "download"    : "\/media\/pool\/download/"
+, "download"    : "\/media\/pool\/download\/"
 , "ssl-verify"  : false
 }

@@ -1,28 +1,18 @@
-{ "url"         : "https:\/\/libgen.is\/search.php?req={query}&open=0&res={res}&view=simple&phrase=1&column=def&page={page}&sort={sort}&sortmode={sortmode}"
-, "params"      : { "sort"     : [ "id" ]
-                  , "sortmode" : [ "ASC", "DESC" ]
-                  , "page"     : 1
-                  , "res"      : 100
+{ "url"         : "https:\/\/ideas.repec.org\/cgi-bin\/htsearch?form=extended&wm=wrd&dt=range&ul=%25%2Fa%2F%25&q={query}&cmd=Search%21&wf=4BFF&s=R&db=&de=&np={page}"
+, "params"      : { "page" : 0
                   }
 , "page-params" : { "name" : "page"
                   , "step" : 1
                   }
-, "rows"        : "\/html\/body\/table[3]\/tr"
+, "rows"        : "\/html\/body\/div[1]\/div[2]\/div[1]\/div[3]\/div[3]\/ol"
 , "skip-header" : true
 , "columns"     : { "id"        : { "align" : ">" , "width" :  8 , "flex-width" : false , "xpath" : "td[1]" , "key" : true }
                   , "author"    : { "align" :  "" , "width" : 20 , "flex-width" : false , "xpath" : "td[2]" } 
-                  , "title"     : { "align" :  "" , "width" :  0 , "flex-width" : true  , "xpath" : "td[3]" } 
-                  , "publisher" : { "align" :  "" , "width" : 20 , "flex-width" : false , "xpath" : "td[4]" } 
-                  , "year"      : { "align" :  "" , "width" :  4 , "flex-width" : false , "xpath" : "td[5]" } 
-                  , "pages"     : { "align" : ">" , "width" :  9 , "flex-width" : false , "xpath" : "td[6]" } 
-                  , "language"  : { "align" :  "" , "width" :  8 , "flex-width" : false , "xpath" : "td[7]" } 
-                  , "filesize"  : { "align" : ">" , "width" :  8 , "flex-width" : false , "xpath" : "td[8]" } 
-                  , "extension" : { "align" :  "" , "width" :  9 , "flex-width" : false , "xpath" : "td[9]" } 
                   }
 , "link"        : [ "td[10]\/a\/@href"
                   , "\/\/*[@id='download']\/h2[1]\/a\/@href"
                   ]
 , "user-agent"  : "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/117.0.0.0 Safari\/537.36"
-, "download"    : "\/media\/pool\/download/"
+, "download"    : "\/media\/pool\/download\/"
 , "ssl-verify"  : false
 }

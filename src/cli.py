@@ -10,6 +10,7 @@ class Interface:
         self.config      = config
         self.url         = config['url']
         self.params      = config['params']
+        self.page_params = config['page-params']
         self.link_xpath  = config['link']
         self.download    = config['download']
         self.ssl_verify  = config['ssl-verify']
@@ -76,10 +77,11 @@ class Interface:
                 self.dl.get_file(url)
 
             elif self.user_input != '':
-                self.query             = self.user_input
-                self.win_page          = 1
-                self.last_page         = 1
-                self.params['page'][0] = 1
+                self.query          = self.user_input
+                self.win_page       = 1
+                self.last_page      = 1
+                page_params_name    = self.page_params['name']
+                self.params[page_params_name] = 1
 
                 self.parser.reset_results()
                 self.set_status(f'Searching for {self.query}...')
@@ -160,20 +162,20 @@ class Interface:
         self.col_wdt = [ col['width'] for col in self.cols.values() ]
 
     def cprint(self, text, set_space = True, new_line = True):
+        regex = r'[^\x00-\xff]'
+        plhld = '…'
+        pfx   = '' if new_line else '\r'
         text  = text[:self.term_wdt] if len(text) > self.term_wdt else text
         space = " " * (self.term_wdt - len(text)) if set_space else ""
-        regex = r'[^\x00-\xff]'
-        plhld = '■'
-        pfx   = '' if new_line else '\r'
-        value = re.sub(regex, plhld, f'{pfx}{text}{space}')
+        text  = re.sub(regex, plhld, f'{pfx}{text}{space}')
     
         try:
-            self.stdscr.addstr(value)     # Print value
+            self.stdscr.addstr(text)
 
-        except curses.error:                       # If error is caught...
-            pass                                   # ...ignore it
+        except curses.error:
+            pass
 
-        self.stdscr.refresh()                      # Refresh screen
+        self.stdscr.refresh()
 
     def cinput(self, text):
         y, x = self.stdscr.getyx()

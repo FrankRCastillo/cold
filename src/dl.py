@@ -24,12 +24,23 @@ class Downloader:
 
         return req.content
 
-    def get_file(self, url):
-        self.get_success = False
-        url        = self.absolute_url(url)
+    def get_url_filename(self, url):
         parsed_url = urlparse(url)
         basename   = path.basename(parsed_url.path)
-        filename   = unquote(path.join(self.download, basename))
+        fullpath   = unquote(path.join(self.download, basename))
+
+        return fullpath
+
+    def get_file(self, url):
+        self.get_success = False
+
+        if type(url) != str:
+            self.cli.set_status("Invalid URL. Check link XPath in configuration file")
+            self.cli.show_results()
+
+            return
+
+        url        = self.absolute_url(url)
         file_mode  = 'wb'
         max_retry  = 5
         cnt_retry  = 0
@@ -43,8 +54,6 @@ class Downloader:
             sess.headers.update(self.hdr)
             sess.verify = self.cli.ssl_verify
 
-            # Initial request to get file size on server
-
             head_req = None
             
             try:
@@ -57,11 +66,13 @@ class Downloader:
             head_req.raise_for_status()
             total = int(head_req.headers.get('Content-Length', 0))
 
-            if path.exists(filename):
-                exist_size = path.getsize(filename)
+            fullpath = self.get_url_filename(url)
+
+            if path.exists(fullpath):
+                exist_size = path.getsize(fullpath)
 
                 if exist_size == total:
-                    self.cli.set_status(f'{basename} already fully downloaded.')
+                    self.cli.set_status(f'File exists: {fullpath}.')
                     return
             
                 file_mode = 'ab'
@@ -73,29 +84,32 @@ class Downloader:
 
             while max_retry > cnt_retry:
                 try:
-                    req = sess.get(url, stream=True)
-                    req.raise_for_status()
+                    rsp = sess.get(url, stream=True)
+                    rsp.raise_for_status()
 
                     self.progress_bar(exist_size, total)
 
-                    with open(filename, file_mode) as f:
-                        for data in req.iter_content(chunk_size=1024):
+                    fullpath = self.get_url_filename(rsp.url)
+
+                    with open(fullpath, file_mode) as f:
+                        for data in rsp.iter_content(chunk_size=1024):
                             size = exist_size + f.write(data)
                             exist_size = size
+                            
                             self.progress_bar(exist_size, total)
 
-                    self.cli.set_status(f'Downloaded #{self.cli.user_input}')
+                    self.cli.set_status(f'Downloaded #{self.cli.user_input}: {fullpath}')
                     self.cli.show_results()                                        
 
                     return  # Download complete, exit function
 
                 except requests.exceptions.RequestException as e:
                     cnt_retry += 1
-                    self.cli.set_status(f'Error downloading {filename}, retrying ({cnt_retry}/{max_retry}): {e}')
+                    self.cli.set_status(f'Error downloading {fullpath}, retrying ({cnt_retry}/{max_retry}): {e}')
                     self.cli.show_results()
                     time.sleep(2 ** cnt_retry)  # Exponential backoff
 
-        self.cli.set_status(f'Failed to download {filename} after {max_retry} retries')
+        self.cli.set_status(f'Failed to download {fullpath} after {max_retry} retries')
         self.cli.show_results()
 
     def absolute_url(self, url):
@@ -106,8 +120,8 @@ class Downloader:
 
         else:
             parsed_parent_url = urlparse(self.cli.url)
-            parent_scheme     = parsed_parent_url.scheme
-            parent_netloc     = parsed_parent_url.netloc
+            parent_scheme     = str(parsed_parent_url.scheme)
+            parent_netloc     = str(parsed_parent_url.netloc)
             construct_url     = urlunparse((parent_scheme, parent_netloc, url, '', '', ''))
 
             return construct_url
