@@ -1,2 +1,2 @@
 [console_scripts]
-cold = cold:main
+cold = cold.cold:main
