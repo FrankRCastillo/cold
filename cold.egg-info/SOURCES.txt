@@ -9,6 +9,7 @@ cold.egg-info/entry_points.txt
 cold.egg-info/requires.txt
 cold.egg-info/top_level.txt
 cold/config/arxiv
+cold/config/crsh
 cold/config/exaly
 cold/config/libgen
 cold/config/repec
