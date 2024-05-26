@@ -125,7 +125,7 @@ class Interface:
         self.cprint(f'{self.last_msg}')
    
     def load_results(self):
-        self.set_status(self.search_msg.format(query = self.query))
+        self.set_status(f'Search results: {self.query}')
 
         self.results     = self.parser.get_results()
         self.last_page   = self.win_page + 1 if self.win_page + 1 > self.last_page and len(self.parser.results) > self.max_rows * self.win_page else self.last_page
@@ -248,7 +248,7 @@ class Interface:
             self.set_status(f'Loading page {page}')
             self.show_results()
             self.load_results() 
-            self.set_status(self.search_msg.format(query = self.query))
+            self.set_status(f'Search results: {self.query}')
             self.show_results()
 
     def help(self):
