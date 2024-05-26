@@ -5,12 +5,12 @@
 , "page-params" : { "name" : "page"
                   , "step" : 1
                   }
-, "rows"        : "\/html\/body\/div[3]\/div[3]\/div[1]\/div[2]\/table\/tbody\/tr"
+, "rows"        : "\/html\/body\/div[2]\/div[3]\/div[1]\/div[2]\/table\/tbody\/tr"
 , "skip-header" : true
-, "columns"     : { "title"       : { "align" : "<" , "width" :  0 , "flex-width" : true  , "xpath" : "td[1]\/p[1]"                , "key" : true }
-                  , "publication" : { "align" : "<" , "width" :  0 , "flex-width" : true  , "xpath" : "td[1]\/p[2]\/span[2]\/b[1]" }
-                  , "type"        : { "align" : "<" , "width" : 20 , "flex-width" : false , "xpath" : "td[1]\/p[2]\/span[1]\/b[1]" }
-                  , "published"   : { "align" : "<" , "width" : 18 , "flex-width" : false , "xpath" : "td[1]\/p[2]\/span[1]\/b[2]" }
+, "columns"     : { "title"       : { "align" : "<" , "width" :  0 , "flex-width" : true  , "xpath" : "td\/p[1]"                , "key" : true }
+                  , "publication" : { "align" : "<" , "width" :  0 , "flex-width" : true  , "xpath" : "td\/p[2]\/span[2]\/b[1]" }
+                  , "type"        : { "align" : "<" , "width" : 20 , "flex-width" : false , "xpath" : "td\/p[2]\/span[1]\/b[1]" }
+                  , "published"   : { "align" : "<" , "width" : 18 , "flex-width" : false , "xpath" : "td\/p[2]\/span[1]\/b[2]" }
                   }
 , "link"        : [ "td\/div\/div\/a\/@href"
                   ]
