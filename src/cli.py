@@ -11,7 +11,7 @@ class Interface:
         self.url         = config['url']
         self.params      = config['params']
         self.page_params = config['page-params']
-        self.link_xpath  = config['link']
+        self.link        = config['link']
         self.download    = config['download']
         self.ssl_verify  = config['ssl-verify']
         self.ssl_warn    = '!!! SSL VERIFICATION IS DISABLED !!! ' if not self.ssl_verify else ''
@@ -57,6 +57,8 @@ class Interface:
         self.parser = Parse_Results(self, self.dl)
 
         curses.start_color()
+        self.set_status(f'Searching for {self.query}...')
+        self.show_results()
         self.load_results()
         self.show_results()
 
@@ -71,7 +73,7 @@ class Interface:
 
                 if not url:
                     link_row = self.results[self.user_input]['link_row']
-                    self.results[self.user_input]['link'] = self.parser.get_link(link_row, self.link_xpath)
+                    self.results[self.user_input]['link'] = self.parser.get_link(link_row, self.link)
                     url = self.results[self.user_input]['link']
 
                 self.dl.get_file(url)
@@ -128,8 +130,10 @@ class Interface:
         self.set_status(f'Search results: {self.query}')
 
         self.results     = self.parser.get_results()
-        self.last_page   = self.win_page + 1 if self.win_page + 1 > self.last_page and len(self.parser.results) > self.max_rows * self.win_page else self.last_page
         self.results_len = len(self.parser.results)
+        win_gt_last_page = self.win_page + 1 > self.last_page
+        rslt_len_gt_rows = self.results_len > self.max_rows * self.win_page
+        self.last_page   = self.win_page + 1 if win_gt_last_page and  rslt_len_gt_rows else self.last_page
         self.input_msg   = f'{self.results_len} results. Pg. {self.win_page}/{self.last_page}: '
 
     def results_row(self, label):

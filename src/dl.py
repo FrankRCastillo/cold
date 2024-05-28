@@ -6,6 +6,8 @@ from os                 import path
 from urllib.parse       import unquote
 from urllib.parse       import urlparse
 from urllib.parse       import urlunparse
+from urllib.request     import urlopen
+from urllib.request     import Request
 from urllib3.exceptions import InsecureRequestWarning
 
 class Downloader:
@@ -20,9 +22,17 @@ class Downloader:
         self.get_success = False
 
     def get_url(self, url):
-        req = requests.get(url, headers = self.hdr)
+        req = Request( url
+                     , data = None
+                     , headers = self.hdr
+                     )
 
-        return req.content
+        with urlopen(req) as response:
+            content  = response.read()
+            encoding = response.headers.get_content_charset('utf-8')
+            text     = content.decode(encoding)
+
+            return text
 
     def get_url_filename(self, url):
         parsed_url = urlparse(url)
@@ -35,7 +45,7 @@ class Downloader:
         self.get_success = False
 
         if type(url) != str:
-            self.cli.set_status("Invalid URL. Check link XPath in configuration file")
+            self.cli.set_status(f"Error downloading {url}")
             self.cli.show_results()
 
             return

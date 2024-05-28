@@ -1,6 +1,8 @@
 import re
 
 from urllib.parse import quote_plus
+from urllib.parse import urlparse
+from urllib.parse import urlunparse
 from lxml         import html
 
 class Parse_Results:
@@ -35,33 +37,44 @@ class Parse_Results:
             tree      = html.fromstring(raw_html)
             rows_tree = tree.xpath(self.rows)
 
-            if not rows_tree or len(rows_tree) == 1:
+            if not isinstance(rows_tree, list) or len(rows_tree) == 0:
+                break
+
+            rows_len  = len(rows_tree) if isinstance(rows_tree, list) else 1
+            start_row = 1 if self.cli.config['skip-header'] else 0
+
+            if not rows_tree or rows_len == 1:
                 self.cli.last_page = self.cli.win_page - 1 if self.cli.win_page > self.cli.last_page else self.cli.last_page
                 break
 
-            start_row = 1 if self.cli.config['skip-header'] else 0
+            rows_enum = enumerate(rows_tree[start_row:], start = rslt_cnt + 1)
 
-            for idx_val, row in enumerate(rows_tree[start_row:], start = rslt_cnt + 1):
+            for idx_val, row in rows_enum:
                 idx_str = str(idx_val)
                 tmp_dic = {idx_col : idx_str}
                 key_val = None
 
                 for k, v in self.xpaths.items():
                     xpath_obj = row.xpath(v)
-                    html_val  = None
+                    html_val  = ""
+                    
+                    if xpath_obj:
+                        if isinstance(xpath_obj, list):
+                            if isinstance(xpath_obj[0], html.HtmlElement):
+                                xpath_itr = xpath_obj[0].itertext()
+                                xpath_arr = [val.strip() for val in xpath_itr]
+                                html_val  = " ".join(xpath_arr)
 
-                    try:
-                        xpath_rslt = xpath_obj[0]
-                        html_val = " ".join([ val.strip() for val in xpath_rslt.itertext() ])
+                            else:
+                                html_val  = str(xpath_obj[0]).strip()
 
-                    except:
-                        html_val = xpath_obj.__str__()
+                    html_val = re.sub(r'[^\S ]+', '', html_val)
 
                     tmp_dic[k] = html_val
 
                     if k == key_col:
                         key_val = html_val
-                    
+
                 if key_val and key_val not in self.result_ids:
                     self.result_ids.add(key_val)
 
@@ -84,14 +97,29 @@ class Parse_Results:
         url = None
 
         for idx, xpath in enumerate(link_xpaths):
-            if idx == 0:
+            if idx == 0 or len(link_xpaths) == 1:
                 url = str(row.xpath(xpath)[0])
+
+            elif '{path}' in xpath:
+                url_parse = urlparse(url)
+                url_path  = urlunparse(( ''
+                                       , ''
+                                       , url_parse.path
+                                       , url_parse.params
+                                       , url_parse.query
+                                       , url_parse.fragment
+                                       ))
+                url_path = url_path.lstrip('/')
+                url      = f'{xpath}'.format(path = url_path)
 
             else:
                 page = self.dl.get_url(url)
                 tree = html.fromstring(page)
-                url  = str(tree.xpath(xpath)[0])
+                elem = tree.xpath(xpath)
 
+                if isinstance(elem, list) and len(elem) > 0:
+                    url = str(elem[0])
+        
         return url            
 
     def format_url(self, url, query):
@@ -116,3 +144,9 @@ class Parse_Results:
                 url_dict[url_key] = param_val
 
         return url.format(**url_dict)
+
+    def write_file(self, path, text):
+        text_nl = f'{text}\n'
+
+        with open(path, 'a') as file: 
+            file.write(text_nl)
