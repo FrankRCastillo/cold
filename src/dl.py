@@ -1,3 +1,4 @@
+import os
 import requests
 import time
 import urllib3
@@ -100,13 +101,16 @@ class Downloader:
                     self.progress_bar(exist_size, total)
 
                     fullpath = self.get_url_filename(rsp.url)
+                    temppath = f'{fullpath}.tmp'
 
-                    with open(fullpath, file_mode) as f:
+                    with open(temppath, file_mode) as f:
                         for data in rsp.iter_content(chunk_size=1024):
                             size = exist_size + f.write(data)
                             exist_size = size
                             
                             self.progress_bar(exist_size, total)
+
+                    os.rename(temppath, fullpath)
 
                     self.cli.set_status(f'Downloaded #{self.cli.user_input}: {fullpath}')
                     self.cli.show_results()                                        
