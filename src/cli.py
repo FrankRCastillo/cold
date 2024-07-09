@@ -63,32 +63,37 @@ class Interface:
         self.show_results()
 
         while not self.end_prog:
-            self.user_input = self.cinput(self.input_msg)
-            
-            if self.end_prog:
-                break
+            try:
+                self.user_input = self.cinput(self.input_msg)
+                
+                if self.end_prog:
+                    break
 
-            if self.user_input in self.results.keys():
-                url = self.results[self.user_input].get('link')
+                if self.user_input in self.results.keys():
+                    url = self.results[self.user_input].get('link')
 
-                if not url:
-                    link_row = self.results[self.user_input]['link_row']
-                    self.results[self.user_input]['link'] = self.parser.get_link(link_row, self.link)
-                    url = self.results[self.user_input]['link']
+                    if not url:
+                        link_row = self.results[self.user_input]['link_row']
+                        self.results[self.user_input]['link'] = self.parser.get_link(link_row, self.link)
+                        url = self.results[self.user_input]['link']
 
-                self.dl.get_file(url)
+                    self.dl.get_file(url)
 
-            elif self.user_input != '':
-                self.query          = self.user_input
-                self.win_page       = 1
-                self.last_page      = 1
-                page_params_name    = self.page_params['name']
-                self.params[page_params_name] = 1
+                elif self.user_input != '':
+                    self.query          = self.user_input
+                    self.win_page       = 1
+                    self.last_page      = 1
+                    page_params_name    = self.page_params['name']
+                    self.params[page_params_name] = 1
 
-                self.parser.reset_results()
-                self.set_status(f'Searching for {self.query}...')
-                self.show_results()
-                self.load_results()
+                    self.parser.reset_results()
+                    self.set_status(f'Searching for {self.query}...')
+                    self.show_results()
+                    self.load_results()
+                    self.show_results()
+
+            except Exception as e:
+                self.set_status(f'Error: {e}')
                 self.show_results()
 
         curses.echo()
