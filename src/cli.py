@@ -1,9 +1,11 @@
 import curses
 import math
 import re
+import unicodedata as uc
 
 from src.dl     import Downloader
 from src.parser import Parse_Results
+from wcwidth    import wcwidth
 
 class Interface:
     def __init__(self, config, query):
@@ -141,13 +143,37 @@ class Interface:
         self.last_page   = self.win_page + 1 if win_gt_last_page and  rslt_len_gt_rows else self.last_page
         self.input_msg   = f'{self.results_len} results. Pg. {self.win_page}/{self.last_page}: '
 
-    def results_row(self, label):
-        _, new_wdt = self.stdscr.getmaxyx()
-        zip_col = zip(self.col_wdt, self.col_aln)
-        fmt     = " ".join("{:" + aln + str(wdt) + "." + str(wdt) + "}" for wdt, aln in zip_col)
-        row     = fmt.format(*label)
+    def results_row(self, row_arr):
+        _, term_wdt = self.stdscr.getmaxyx()
+        nrow_arr = []
 
-        self.cprint(row[:new_wdt])
+        for row_txt, col_wdt, col_aln in zip(row_arr, self.col_wdt, self.col_aln):
+            dsp_wdt = 0
+            new_txt = ""
+
+            for char in row_txt:
+                char_wdt = wcwidth(char)
+
+                if dsp_wdt + char_wdt > col_wdt:
+                    break
+
+                dsp_wdt += char_wdt
+                new_txt += char
+
+            pad = ' ' * (col_wdt - dsp_wdt)
+
+            aln_map = { "<" : new_txt + pad
+                      , ">" : pad + new_txt
+                      , "^" : pad[:len(pad) // 2] + new_txt + pad[len(pad) // 2:]
+                      }
+
+            new_txt = aln_map.get(col_aln, new_txt + pad)
+            nrow_arr.append(new_txt)
+
+        row_txt = " ".join(nrow_arr)
+        row_txt = row_txt[:term_wdt ]
+
+        self.cprint(row_txt)
 
     def set_row_params(self):
         self.term_hgt = self.stdscr.getmaxyx()[0]
@@ -171,18 +197,22 @@ class Interface:
         self.col_wdt = [ col['width'] for col in self.cols.values() ]
 
     def cprint(self, text, set_space = True, new_line = True):
-        regex = r'[^\x00-\xff]'
-        plhld = '…'
         pfx   = '' if new_line else '\r'
         text  = text[:self.term_wdt] if len(text) > self.term_wdt else text
         space = " " * (self.term_wdt - len(text)) if set_space else ""
-        text  = re.sub(regex, plhld, f'{pfx}{text}{space}')
     
         try:
-            self.stdscr.addstr(text)
+            self.stdscr.addstr(f'{pfx}{text}{space}')
+            self.stdscr.clrtoeol()
 
         except curses.error:
             pass
+
+        # if new_line:
+        y, x = self.stdscr.getyx()
+
+        if y < self.term_hgt - 1:
+            self.stdscr.move(y, 0)
 
         self.stdscr.refresh()
 
