@@ -1,0 +1,25 @@
+{ "url"         : "https://libgen.la/index.php?req={query}&columns%5B%5D=t&columns%5B%5D=a&columns%5B%5D=s&columns%5B%5D=y&columns%5B%5D=p&columns%5B%5D=i&objects%5B%5D=f&objects%5B%5D=e&objects%5B%5D=s&objects%5B%5D=a&objects%5B%5D=p&objects%5B%5D=w&topics%5B%5D=l&topics%5B%5D=c&topics%5B%5D=f&topics%5B%5D=a&topics%5B%5D=m&topics%5B%5D=r&topics%5B%5D=s&res=25&filesuns=all&curtab=f&order=&ordermode=desc&filesuns=all&page={page}"
+, "params"      : { "page" : 1
+                  }
+, "page-params" : { "name" : "page"
+                  , "step" : 1
+                  }
+, "rows"        : "//*[@id='tablelibgen']/tbody/tr"
+, "skip-header" : false
+, "columns"     : { "id"        : { "align" : ">" , "width" : 10 , "flex-width" : false , "xpath" : "substring-after(td[7]//a[contains(@href,'/file.php')]/@href, 'id=')", "key" : true }
+                  , "title"     : { "align" :  "" , "width" :  0 , "flex-width" : true  , "xpath" : "td[1]/b" }
+                  , "authors"   : { "align" :  "" , "width" : 22 , "flex-width" : false , "xpath" : "td[2]" }
+                  , "publisher" : { "align" :  "" , "width" : 18 , "flex-width" : false , "xpath" : "td[3]" }
+                  , "year"      : { "align" : ">" , "width" :  4 , "flex-width" : false , "xpath" : "td[4]" }
+                  , "lang"      : { "align" :  "" , "width" : 10 , "flex-width" : false , "xpath" : "td[5]" }
+                  , "pages"     : { "align" : ">" , "width" :  8 , "flex-width" : false , "xpath" : "td[6]" }
+                  , "size"      : { "align" : ">" , "width" :  8 , "flex-width" : false , "xpath" : "td[7]" }
+                  , "ext"       : { "align" :  "" , "width" :  5 , "flex-width" : false , "xpath" : "td[8]" }
+                  }
+, "link"        : [ "td[9]//a[contains(@href,'md5=')][1]/@href"
+                  , "//a[contains(@href,'get.php')]/@href"
+                  ]
+, "user-agent"  : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+, "download"    : "/media/pool/download/"
+, "ssl-verify"  : true
+}

@@ -1,0 +1,21 @@
+{ "url"         : "https:\/\/arxiv.org\/search\/?query={query}&searchtype=all&source=header&start={start}"
+, "params"      : { "start" : 0
+                  }
+, "page-params" : { "name" : "start"
+                  , "step" : 50
+                  }
+, "rows"        : "//ol[contains(@class,'breathe-horizontal')]/li[contains(@class,'arxiv-result')]"
+, "skip-header" : false
+, "columns"     : { "id"        : { "align" : "<" , "width" :  14 , "flex-width" : false, "xpath" : "normalize-space(.//p[contains(@class,'list-title')]//a[1])" , "key" : true }
+                  , "title"     : { "align" : "<" , "width" :   0 , "flex-width" :  true, "xpath" : "normalize-space(.//p[contains(@class,'title')])" }
+                  , "authors"   : { "align" : "<" , "width" :  15 , "flex-width" : false, "xpath" : "normalize-space(.//p[contains(@class,'authors')])" }
+                  , "abstract"  : { "align" : "<" , "width" :   0 , "flex-width" :  true, "xpath" : ".//p[contains(@class,'abstract')]//span[contains(@class,'abstract-short')]/text()" }
+                  , "submitted" : { "align" : "<" , "width" :  10 , "flex-width" : false, "xpath" : "normalize-space(.//p[contains(@class,'is-size-7')][1])" }
+                  }
+, "link"        : [ ".//p[contains(@class,'list-title')]//a[contains(@href,'/pdf/')]/@href"
+                  , "https://arxiv.org/{path}.pdf"
+                  ]
+, "user-agent"  : "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/117.0.0.0 Safari\/537.36"
+, "download"    : "\/media\/pool\/download\/"
+, "ssl-verify"  : false
+}

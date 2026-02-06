@@ -1,0 +1,2 @@
+[console_scripts]
+cold = cold.__main__:main

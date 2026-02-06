@@ -1,0 +1,28 @@
+{ "url"         : "https://z-library.sk/s/{query}?page={page}&order={sort}"
+, "params"      : { "sort" : [ "bestmatch", "popular", "date", "titleA", "title", "year", "filesize", "filesizeA" ]
+                  , "page" : 1
+                  }
+, "page-params" : { "name" : "page"
+                  , "step" : 1
+                  }
+, "rows"        : "//*[@id='searchResultBox']//div[contains(@class,'book-item')]"
+, "skip-header" : false
+, "columns"     : { "idx"       : { "align" : ">" , "width" :  4 , "flex-width" : false , "xpath" : "div[contains(@class,'counter')]" }
+                  , "id"        : { "align" : ">" , "width" : 10 , "flex-width" : false , "xpath" : "z-bookcard/@id" , "key" : true }
+                  , "author"    : { "align" :  "" , "width" : 22 , "flex-width" : false , "xpath" : "z-bookcard/div[@slot='author']" }
+                  , "title"     : { "align" :  "" , "width" :  0 , "flex-width" : true  , "xpath" : "z-bookcard/div[@slot='title']" }
+                  , "publisher" : { "align" :  "" , "width" : 20 , "flex-width" : false , "xpath" : "z-bookcard/@publisher" }
+                  , "year"      : { "align" :  "" , "width" :  4 , "flex-width" : false , "xpath" : "z-bookcard/@year" }
+                  , "language"  : { "align" :  "" , "width" : 10 , "flex-width" : false , "xpath" : "z-bookcard/@language" }
+                  , "filesize"  : { "align" : ">" , "width" : 10 , "flex-width" : false , "xpath" : "z-bookcard/@filesize" }
+                  , "extension" : { "align" :  "" , "width" :  6 , "flex-width" : false , "xpath" : "z-bookcard/@extension" }
+                  , "isbn"      : { "align" :  "" , "width" : 13 , "flex-width" : false , "xpath" : "z-bookcard/@isbn" }
+                  }
+, "link"        : [ "z-bookcard/@download"
+                  , "z-bookcard/@href"
+                  ]
+, "user-agent"  : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+, "download"    : "/media/pool/download/"
+, "ssl-verify"  : true
+}
+
